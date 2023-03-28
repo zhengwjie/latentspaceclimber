@@ -1,0 +1,23 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 14px;
+    color: #333;
+  }
+  #content {
+      position: relative;
+      height: 40px;
+      color: #fee5d9;
+      color: #8f0005;
+  }
+  #content div {
+      position: absolute;
+      margin: 2px;
+      background-color: orange;
+      color: white;
+      padding: 8px;
+      width: 14px;
+      height: 14px;
+      text-align: center;
+  }
+  
+  

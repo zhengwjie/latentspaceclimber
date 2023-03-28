@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Data Visualization using D3!</title>
+  <link rel="stylesheet" href="/static/css/robust.css">
+  <link rel="stylesheet" href="/static/css/tree.css">
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <script src="/static/js/d3.v7.min.js"></script>
+  <script src="/static/js/jquery-2.2.4.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/contour.js"></script>
+  <script src="/static/js/zoom_pan.js"></script>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="/static/js/feature_values.js"></script>
+  <script src="/static/js/next_step.js"></script>
+  <script src="/static/js/novelty_overview.js"></script>
+  <script src="/static/js/layui.js"></script>
+  <script src="/static/js/start_point.js"></script>
+  <script src="/static/js/measure.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- <script src="/static/js/heatmap.js"></script> -->
+</head>
+<!-- 路漫漫其修远兮，吾将上下而求索 -->
+<!-- 
+    论文方面：读
+    https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
+    这篇讲的是  introduction
+    details:  http://www.myweb.ttu.edu/tnhondan/file/ScagExplorer.pdf [27]
+
+-->
+<body>
+  <!-- icon来源： https://ionic.io/ionicons -->
+  <div style="height:2px;">
+
+  </div>
+  <div id="parent">
+  <div id="navigator_bar" style="padding-top: 1px;padding-left: 1.5px;">
+    <div id="system_logo" style="float: left;width:200px;height:40px;margin-right: 0px;background-color: white;">
+      <div style="float: left; padding-left: 5px;padding-top: 5px;width:10px;">
+      <!-- <img height="30px" width="30px" src="/static/icons/climber_logo2.jpg"/> -->
+      </div>
+      <div style="height: 40px;line-height: 40px;padding-left: 3px;float: left;font-size:16px" class="title" id="tool_name">
+      Latent Space Climber
+      <!-- Latent Space -->
+      </div>
+    </div>
+    <div style="float: left;height: 40px;width: 1308.5px;background-color: white;">
+
+      <!-- <div style="height: 25px;float: left;padding-top: 7.5px;padding-left: 45px;">
+        <button style="height: 25px;" onclick="left_next_step()">next step</button>
+      </div> -->
+      <div>
+        <!--放大、缩小、平移、选择 -->
+        <div style="height: 25px;float: left;padding-top: 7.5px;padding-left: 10px;">
+         
+        </div>
+
+        <div style="height: 25px;float: right;padding-top: 7.5px;padding-right: 12.5px;" class="label1">
+          <select id="model_select" style="height: 25px;">
+            <option selected>Select Model</option>
+            <option value="1" >SNGAN(MNIST)</option>
+            <option value="2" >StyleGAN2-ADA(CIFAR10)</option>
+              <option value="3" >drug_generator</option>
+              <option value="4" >housegan</option>
+              <!-- 
+                 "SNGAN(MNIST)":["Select Measure","robustness","probability","realness"],
+    "StyleGAN2-ADA(CIFAR10)":["Select Measure","robustness","probability","realness"],
+               -->
+          </select>
+          </div>
+
+          <div style="margin-top: 5px;height:30px;width:1px; float: left;background-color:#CDCDCD">
+
+          </div>
+          <div style="padding-top: 10px; float: left;padding-left: 20px;">
+            <!-- 
+              zoom in and zoom out  来源
+              https://www.iconfont.cn/collections/detail?spm=a313x.7781069.0.da5a778a4&cid=1304
+             -->
+  
+          <svg onclick="select_zoomin(this)" name="0"
+          t="1663078336502" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11093" width="20" height="20" ><path d="M384 768c-213.333333 0-384-170.666667-384-384s170.666667-384 384-384 384 170.666667 384 384S597.333333 768 384 768zM384 85.333333C217.6 85.333333 85.333333 217.6 85.333333 384s132.266667 298.666667 298.666667 298.666667 298.666667-132.266667 298.666667-298.666667S550.4 85.333333 384 85.333333z" p-id="11094" fill="#bfbfbf"></path><path d="M981.333333 1024c-12.8 0-21.333333-4.266667-29.866667-12.8L597.333333 657.066667c-17.066667-17.066667-17.066667-42.666667 0-59.733333s42.666667-17.066667 59.733333 0l354.133333 354.133333c17.066667 17.066667 17.066667 42.666667 0 59.733333C1002.666667 1019.733333 994.133333 1024 981.333333 1024z" p-id="11095" fill="#bfbfbf"></path><path d="M512 426.666667 256 426.666667c-25.6 0-42.666667-17.066667-42.666667-42.666667s17.066667-42.666667 42.666667-42.666667l256 0c25.6 0 42.666667 17.066667 42.666667 42.666667S537.6 426.666667 512 426.666667z" p-id="11096" fill="#bfbfbf"></path><path d="M384 554.666667c-25.6 0-42.666667-17.066667-42.666667-42.666667L341.333333 256c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 256C426.666667 537.6 409.6 554.666667 384 554.666667z" p-id="11097" ></path></svg>
+          <svg onclick="select_zoomout(this)" name="1"
+          t="1663078847816" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3341" width="20" height="20"><path d="M384 768c-213.333333 0-384-170.666667-384-384s170.666667-384 384-384 384 170.666667 384 384S597.333333 768 384 768zM384 85.333333C217.6 85.333333 85.333333 217.6 85.333333 384s132.266667 298.666667 298.666667 298.666667 298.666667-132.266667 298.666667-298.666667S550.4 85.333333 384 85.333333z" p-id="3342" fill="#bfbfbf"></path><path d="M981.333333 1024c-12.8 0-21.333333-4.266667-29.866667-12.8L597.333333 657.066667c-17.066667-17.066667-17.066667-42.666667 0-59.733333s42.666667-17.066667 59.733333 0l354.133333 354.133333c17.066667 17.066667 17.066667 42.666667 0 59.733333C1002.666667 1019.733333 994.133333 1024 981.333333 1024z" p-id="3343" fill="#bfbfbf"></path><path d="M512 426.666667 256 426.666667c-25.6 0-42.666667-17.066667-42.666667-42.666667s17.066667-42.666667 42.666667-42.666667l256 0c25.6 0 42.666667 17.066667 42.666667 42.666667S537.6 426.666667 512 426.666667z" p-id="3344" fill="#bfbfbf"></path></svg>
+          <!-- <svg t="1663078962432"  class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7059" width="32" height="32"><path d="M981.333333 1024l-170.666667 0c-25.6 0-42.666667-17.066667-42.666667-42.666667s17.066667-42.666667 42.666667-42.666667l170.666667 0c25.6 0 42.666667 17.066667 42.666667 42.666667S1006.933333 1024 981.333333 1024z" p-id="7060" fill="#bfbfbf"></path><path d="M981.333333 1024c-25.6 0-42.666667-17.066667-42.666667-42.666667l0-170.666667c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 170.666667C1024 1006.933333 1006.933333 1024 981.333333 1024z" p-id="7061" fill="#bfbfbf"></path><path d="M213.333333 85.333333 42.666667 85.333333C17.066667 85.333333 0 68.266667 0 42.666667s17.066667-42.666667 42.666667-42.666667l170.666667 0c25.6 0 42.666667 17.066667 42.666667 42.666667S238.933333 85.333333 213.333333 85.333333z" p-id="7062" fill="#bfbfbf"></path><path d="M42.666667 256C17.066667 256 0 238.933333 0 213.333333L0 42.666667c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 170.666667C85.333333 238.933333 68.266667 256 42.666667 256z" p-id="7063" fill="#bfbfbf"></path><path d="M332.8 375.466667c-12.8 0-21.333333-4.266667-29.866667-12.8L21.333333 81.066667c-17.066667-17.066667-17.066667-42.666667 0-59.733333s42.666667-17.066667 59.733333 0l277.333333 277.333333c17.066667 17.066667 17.066667 42.666667 0 59.733333C354.133333 371.2 341.333333 375.466667 332.8 375.466667z" p-id="7064" fill="#bfbfbf"></path><path d="M972.8 1015.466667c-12.8 0-21.333333-4.266667-29.866667-12.8l-277.333333-277.333333c-17.066667-17.066667-17.066667-42.666667 0-59.733333s42.666667-17.066667 59.733333 0l277.333333 277.333333c17.066667 17.066667 17.066667 42.666667 0 59.733333C994.133333 1011.2 981.333333 1015.466667 972.8 1015.466667z" p-id="7065" fill="#bfbfbf"></path><path d="M42.666667 1024c-25.6 0-42.666667-17.066667-42.666667-42.666667l0-170.666667c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 170.666667C85.333333 1006.933333 68.266667 1024 42.666667 1024z" p-id="7066" fill="#bfbfbf"></path><path d="M213.333333 1024 42.666667 1024c-25.6 0-42.666667-17.066667-42.666667-42.666667s17.066667-42.666667 42.666667-42.666667l170.666667 0c25.6 0 42.666667 17.066667 42.666667 42.666667S238.933333 1024 213.333333 1024z" p-id="7067" fill="#bfbfbf"></path><path d="M981.333333 256c-25.6 0-42.666667-17.066667-42.666667-42.666667L938.666667 42.666667c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 170.666667C1024 238.933333 1006.933333 256 981.333333 256z" p-id="7068" fill="#bfbfbf"></path><path d="M981.333333 85.333333l-170.666667 0c-25.6 0-42.666667-17.066667-42.666667-42.666667s17.066667-42.666667 42.666667-42.666667l170.666667 0c25.6 0 42.666667 17.066667 42.666667 42.666667S1006.933333 85.333333 981.333333 85.333333z" p-id="7069" fill="#bfbfbf"></path><path d="M691.2 375.466667c-12.8 0-21.333333-4.266667-29.866667-12.8-17.066667-17.066667-17.066667-42.666667 0-59.733333l277.333333-277.333333c17.066667-17.066667 42.666667-17.066667 59.733333 0s17.066667 42.666667 0 59.733333l-277.333333 277.333333C716.8 371.2 704 375.466667 691.2 375.466667z" p-id="7070" fill="#bfbfbf"></path><path d="M51.2 1015.466667c-12.8 0-21.333333-4.266667-29.866667-12.8-17.066667-17.066667-17.066667-42.666667 0-59.733333l277.333333-277.333333c17.066667-17.066667 42.666667-17.066667 59.733333 0s17.066667 42.666667 0 59.733333l-277.333333 277.333333C72.533333 1011.2 64 1015.466667 51.2 1015.466667z" p-id="7071" fill="#bfbfbf"></path></svg> -->
+          <!-- pan的图标库 https://www.iconfont.cn/collections/detail?spm=a313x.7781069.0.da5a778a4&cid=29273 -->
+          <!-- <svg onclick="select_pan(this)" name="2"
+          t="1663079038392" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6791" width="20" height="20"><path d="M1019.733333 529.066667c4.266667-8.533333 4.266667-21.333333 0-34.133334-4.266667-4.266667-4.266667-8.533333-8.533333-12.8l-128-128c-17.066667-17.066667-42.666667-17.066667-59.733333 0s-17.066667 42.666667 0 59.733334l55.466666 55.466666H554.666667V145.066667l55.466666 55.466666c8.533333 8.533333 17.066667 12.8 29.866667 12.8s21.333333-4.266667 29.866667-12.8c17.066667-17.066667 17.066667-42.666667 0-59.733333l-128-128c-4.266667-4.266667-8.533333-8.533333-12.8-8.533333-8.533333-4.266667-21.333333-4.266667-34.133334 0-4.266667 4.266667-8.533333 4.266667-12.8 8.533333l-128 128c-17.066667 17.066667-17.066667 42.666667 0 59.733333s42.666667 17.066667 59.733334 0L469.333333 145.066667V469.333333H145.066667l55.466666-55.466666c17.066667-17.066667 17.066667-42.666667 0-59.733334s-42.666667-17.066667-59.733333 0l-128 128c-4.266667 4.266667-8.533333 8.533333-8.533333 12.8-4.266667 8.533333-4.266667 21.333333 0 34.133334 4.266667 4.266667 4.266667 8.533333 8.533333 12.8l128 128c8.533333 8.533333 17.066667 12.8 29.866667 12.8s21.333333-4.266667 29.866666-12.8c17.066667-17.066667 17.066667-42.666667 0-59.733334L145.066667 554.666667H469.333333v324.266666l-55.466666-55.466666c-17.066667-17.066667-42.666667-17.066667-59.733334 0s-17.066667 42.666667 0 59.733333l128 128c4.266667 4.266667 8.533333 8.533333 12.8 8.533333 4.266667 4.266667 12.8 4.266667 17.066667 4.266667s12.8 0 17.066667-4.266667c4.266667-4.266667 8.533333-4.266667 12.8-8.533333l128-128c17.066667-17.066667 17.066667-42.666667 0-59.733333s-42.666667-17.066667-59.733334 0L554.666667 878.933333V554.666667h324.266666l-55.466666 55.466666c-17.066667 17.066667-17.066667 42.666667 0 59.733334 8.533333 8.533333 21.333333 12.8 29.866666 12.8s21.333333-4.266667 29.866667-12.8l128-128c4.266667-4.266667 8.533333-8.533333 8.533333-12.8z" p-id="6792" fill="#bfbfbf"></path></svg> -->
+          <!-- <svg onclick="change_next_step_status(this)" name="3"
+          t="1663141847012" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3534" width="20" height="20"><path d="M351.866914 645.910768c-43.577233 0-85.884838-8.547496-125.723167-25.39256-38.458733-16.265235-72.998614-39.548414-102.63993-69.199727-29.651313-29.651313-52.924495-64.181197-69.199726-102.63993-16.855062-39.838329-25.392561-82.145934-25.392561-125.723167s8.547496-85.884838 25.392561-125.723167c16.265235-38.458733 39.548414-72.998614 69.199726-102.63993 29.651313-29.651313 64.181197-52.924495 102.63993-69.199726C265.982076 8.537499 308.289681 0 351.866914 0s85.884838 8.547496 125.723167 25.392561c38.458733 16.265235 72.998614 39.548414 102.63993 69.199726 29.651313 29.651313 52.924495 64.181197 69.199726 102.63993 16.855062 39.838329 25.392561 82.145934 25.392561 125.723167 0 21.883589-2.209353 43.767178-6.558079 65.040945l-77.647251-15.885346c3.289036-16.055296 4.94855-32.600449 4.94855-49.155599 0-134.380631-109.32797-243.708601-243.708601-243.708601S108.158313 188.574753 108.158313 322.955384 217.486283 566.663985 351.866914 566.663985c16.495167 0 32.980338-1.649517 48.985649-4.918559l15.83536 77.657249c-21.213785 4.318735-43.017397 6.508093-64.821009 6.508093z" fill="#bfbfbf" p-id="3535"></path><path d="M904.345055 563.674861L533.173797 893.248306 371.491165 337.351167zM725.547437 722.428351L966.186937 997.607732" fill="#bfbfbf" p-id="3536"></path><path d="M695.754166 748.540701l59.66452-52.174714 240.643499 275.187378-59.66452 52.174715z" fill="#bfbfbf" p-id="3537"></path></svg>
+           -->
+          <!-- 
+            选中  进入下一步
+           -->
+           <!-- 
+            撤销和回退
+            -->
+            
+           <!-- <svg onclick="prev_step()"
+           t="1663141438500" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3698" width="20" height="20"><path d="M426.666667 896c-8.533333 0-21.333333-4.266667-29.866667-12.8l-384-341.333333C4.266667 537.6 0 524.8 0 512s4.266667-25.6 12.8-29.866667l384-341.333333c12.8-12.8 29.866667-12.8 46.933333-8.533333C460.8 136.533333 469.333333 153.6 469.333333 170.666667l0 213.333333c0 25.6-17.066667 42.666667-42.666667 42.666667S384 409.6 384 384L384 264.533333 106.666667 512 384 759.466667 384 640c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 213.333333c0 17.066667-8.533333 34.133333-25.6 38.4C439.466667 896 430.933333 896 426.666667 896z" p-id="3699" fill="#bfbfbf"></path><path d="M981.333333 896c-17.066667 0-34.133333-8.533333-38.4-25.6 0 0-85.333333-187.733333-516.266667-187.733333-25.6 0-42.666667-17.066667-42.666667-42.666667s17.066667-42.666667 42.666667-42.666667c260.266667 0 409.6 64 494.933333 123.733333C832 430.933333 443.733333 426.666667 426.666667 426.666667c-25.6 0-42.666667-17.066667-42.666667-42.666667 0-25.6 17.066667-42.666667 42.666667-42.666667 4.266667 0 597.333333 4.266667 597.333333 512 0 21.333333-12.8 38.4-34.133333 42.666667C985.6 896 985.6 896 981.333333 896z" p-id="3700" fill="#bfbfbf"></path></svg>
+           <svg onclick="next_step()"
+           t="1663141352915" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3325" width="20" height="20"><path d="M597.333333 896c-4.266667 0-12.8 0-17.066667-4.266667C563.2 887.466667 554.666667 870.4 554.666667 853.333333l0-213.333333c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 119.466667 277.333333-247.466667L640 264.533333 640 384c0 25.6-17.066667 42.666667-42.666667 42.666667s-42.666667-17.066667-42.666667-42.666667L554.666667 170.666667c0-17.066667 8.533333-34.133333 25.6-38.4 17.066667-8.533333 34.133333-4.266667 46.933333 8.533333l384 341.333333c8.533333 8.533333 12.8 21.333333 12.8 29.866667s-4.266667 25.6-12.8 29.866667l-384 341.333333C618.666667 891.733333 605.866667 896 597.333333 896z" p-id="3326" fill="#bfbfbf"></path><path d="M42.666667 896c-4.266667 0-4.266667 0-8.533333 0C12.8 891.733333 0 874.666667 0 853.333333 0 345.6 593.066667 341.333333 597.333333 341.333333c25.6 0 42.666667 17.066667 42.666667 42.666667 0 25.6-17.066667 42.666667-42.666667 42.666667-17.066667 0-405.333333 4.266667-494.933333 294.4C187.733333 661.333333 337.066667 597.333333 597.333333 597.333333c25.6 0 42.666667 17.066667 42.666667 42.666667s-17.066667 42.666667-42.666667 42.666667C166.4 682.666667 81.066667 866.133333 81.066667 870.4 76.8 887.466667 59.733333 896 42.666667 896z" p-id="3327" fill="#bfbfbf"></path></svg>
+          -->
+           <!-- 
+          恢复默认状态
+          -->
+           <svg onclick="recycle()"
+          t="1663642489016" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3768" width="20" height="20"><path d="M908.8 554.666667" p-id="3769" fill="#bfbfbf"></path><path d="M853.333333 554.666667c-25.6 0-42.666667-17.066667-42.666667-42.666667 0-166.4-132.266667-298.666667-298.666667-298.666667-81.066667 0-153.6 29.866667-213.333333 85.333333C285.866667 315.733333 256 315.733333 238.933333 298.666667c-17.066667-17.066667-17.066667-42.666667 0-59.733333C311.466667 166.4 409.6 128 512 128c213.333333 0 384 170.666667 384 384C896 537.6 878.933333 554.666667 853.333333 554.666667z" p-id="3770" fill="#bfbfbf"></path><path d="M512 896c-213.333333 0-384-170.666667-384-384 0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667c0 166.4 132.266667 298.666667 298.666667 298.666667 81.066667 0 153.6-29.866667 213.333333-85.333333 17.066667-17.066667 42.666667-17.066667 59.733333 0 17.066667 17.066667 17.066667 42.666667 0 59.733333C712.533333 857.6 614.4 896 512 896z" p-id="3771" fill="#bfbfbf"></path><path d="M853.333333 554.666667c-8.533333 0-17.066667-4.266667-25.6-8.533333L682.666667 439.466667c-17.066667-12.8-21.333333-42.666667-8.533333-59.733333 12.8-17.066667 42.666667-21.333333 59.733333-8.533333l145.066667 106.666667c17.066667 12.8 21.333333 42.666667 8.533333 59.733333C878.933333 550.4 866.133333 554.666667 853.333333 554.666667z" p-id="3772" fill="#bfbfbf"></path><path d="M853.333333 554.666667c-8.533333 0-17.066667-4.266667-25.6-8.533333-17.066667-12.8-21.333333-42.666667-8.533333-59.733333L925.866667 341.333333c12.8-17.066667 42.666667-21.333333 59.733333-8.533333 17.066667 12.8 21.333333 42.666667 8.533333 59.733333l-106.666667 145.066667C878.933333 550.4 866.133333 554.666667 853.333333 554.666667z" p-id="3773" fill="#bfbfbf"></path><path d="M115.2 469.333333" p-id="3774" fill="#bfbfbf"></path><path d="M315.733333 661.333333c-8.533333 0-17.066667-4.266667-25.6-8.533333l-145.066667-106.666667c-17.066667-12.8-21.333333-42.666667-8.533333-59.733333 12.8-17.066667 38.4-21.333333 59.733333-8.533333L341.333333 584.533333c17.066667 12.8 21.333333 42.666667 8.533333 59.733333C341.333333 657.066667 328.533333 661.333333 315.733333 661.333333z" p-id="3775" fill="#bfbfbf"></path><path d="M64 699.733333c-8.533333 0-17.066667-4.266667-25.6-8.533333-17.066667-12.8-21.333333-42.666667-8.533333-59.733333l106.666667-145.066667c12.8-17.066667 38.4-21.333333 59.733333-8.533333 17.066667 12.8 21.333333 42.666667 8.533333 59.733333L98.133333 682.666667C89.6 695.466667 76.8 699.733333 64 699.733333z" p-id="3776" fill="#bfbfbf"></path></svg>
+         <!-- 
+          历史记录弹出窗
+          -->
+          <svg onclick="start_point_show()"
+          t="1663643244148" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4118" width="20" height="20"><path d="M512 967.0656c-251.392 0-455.0656-203.776-455.0656-455.0656S260.608 56.9344 512 56.9344s455.0656 203.776 455.0656 455.0656S763.392 967.0656 512 967.0656z m0-625.7664c-192 0-284.4672 162.7136-284.4672 170.7008 0 7.9872 90.0096 170.7008 284.4672 170.7008S796.4672 519.9872 796.4672 512c0-7.9872-92.4672-170.7008-284.4672-170.7008z m0 284.4672c-62.8736 0-113.7664-50.8928-113.7664-113.7664 0-62.8736 50.8928-113.7664 113.7664-113.7664 62.8736 0 113.7664 50.8928 113.7664 113.7664 0 62.8736-50.8928 113.7664-113.7664 113.7664z m0-170.7008c-31.4368 0-56.9344 25.4976-56.9344 56.9344 0 31.4368 25.4976 56.9344 56.9344 56.9344 31.4368 0 56.9344-25.4976 56.9344-56.9344 0-31.4368-25.4976-56.9344-56.9344-56.9344z" fill="#bfbfbf" p-id="4119"></path></svg>
+          </div>
+
+          <div  style="margin-top: 5px;height:30px;
+          width:1px;float: left;margin-left:15px;background-color:#CDCDCD">
+          </div>
+
+          <div  class="label1" style="height: 40px;float: left;margin-left: 20px;font-size: 16px; line-height: 40px;text-align: center;font-weight:normal">Resolution
+          </div>
+          <div class="slidecontainer" style="height: 25px;width:80px;float: left;margin-top: 17.5px;margin-left: 5px;">
+            <input type="range" min="9" max="15" value="9" class="slider" id="myRange" step="2">
+          </div>
+          <div id="sliderValue" class="label1" style="height: 40px;float: left;margin-left: 3px;font-size: 16px; line-height: 40px;text-align: center;font-weight:normal">9 * 9
+
+          </div>
+      </div>
+      <div  style="margin-top: 5px;height:30px;
+      width:1px;float: left;margin-left:20px;background-color:#CDCDCD">
+      </div>
+
+      <div id="component" style="float:left;height:40px;">
+
+        <div style="height: 25px;float:left;padding-top: 7.5px;padding-left: 20px;" class="label1">
+          <select id="measure_select" style="height: 25px;">
+            <option selected>Select Measure</option>
+          </select>
+        </div>
+
+        <div style="height: 25px;float:left;padding-top: 12px;padding-left: 7px;">
+          <img style="height: 25px;width:80px;" src = "/static/icons/domain_measures.svg" alt="My Happy SVG"/>
+        </div>
+        <div id="novelty" class="label1" style="height: 40px;float: left;margin-left: 20px;
+        font-size: 16px; line-height: 40px;
+        text-align: center;" class="label">
+          Novelty
+        </div>
+        <div id="legend" style="margin-left:7px;float:left;margin-top: 5px;height:30px;width:80px">
+        
+        </div>
+      </div>
+      <div  style="margin-top: 5px;height:30px;
+      width:1px;float: left;margin-left:20px;background-color:#CDCDCD">
+      </div>
+
+    </div>
+
+    </div>
+  <div id="white_line"  style="color: white;height: 0px;background-color: white;">
+  </div>
+  <div id="graphs">
+    <!-- <div id="bg" class="bg-success"> -->
+    <div id="info_pannel" style="background-color: white;margin-right: 1px;">
+        <svg  viewBox="0 0 180 20" style="padding-top: 10px;padding-bottom:10px">
+            <text x="10" y="16.5" class="title">Target Sample</text>
+        </svg>
+        <div style="padding-top: 0px;padding-bottom: 10px">
+        <div style="height: 100px;width:100px;background-color: white;margin-left: 40px;float:left;" id="center_image">
+        </div>
+      </div>
+
+        <svg  viewBox="0 0 180 20" style="padding-top:10px;padding-bottom:10px;">
+            <text x="10" y="16.5" class="title">Nearest Neighboors</text>
+        </svg>
+        <svg  viewBox="0 0 180 50" id="neighbors" style="background-color: white">
+
+        </svg>
+      <!-- <div>
+        <progress id="progress"value="0" max="100" style="height: 20px;width:150px;margin-top: 25px;margin-left: 25px;"></progress>
+      </div> -->
+        <svg  viewBox="0 0 180 20" style="padding-top: 10px;padding-bottom:10px">
+            <text x="10" y="16.5" class="title">Direction Rankings</text>
+        </svg>
+         <svg id="feature_vector_view" style="height: 450px;width: 180px">
+          </svg>
+
+    </div>
+
+  <div  id="left_div">
+    <!-- <ion-icon name="add-circle-outline"></ion-icon>
+    <ion-icon name="remove-circle-outline"></ion-icon>
+    <ion-icon name="expand-outline"></ion-icon> -->
+
+    <svg  id="left_svg" class="svgs" >
+      <rect width="630" height="630" stroke="blue"  stroke-width="0px" fill="white" id="left_border"></rect>
+      <g id="outer_border"></g>
+    </svg>
+</div>
+
+<div  id="right_div" >
+  <svg  id="right_svg" class="svgs">
+    <rect width="630" height="630" stroke="blue"  stroke-width="0px" fill="white" id="right_border"></rect>
+    <g id="outer_border"></g>
+  </svg>
+</div>
+<div id="image_list" style="float: right; height: 630px;width: 65.5px;background-color: white;margin-right: 2px;">
+  <ul id="image_list_ul" style="padding-left: 7.75px;">
+
+  </ul>
+
+</div>
+
+
+  </div>
+</div>
+</div>
+<div id="novelty_overview" style="display: none;width: 600px;height: 500px;">
+  <!-- 
+    首先在这里绘制一个contour,接下来，绘制散点，用户选择一个散点，
+    可以在主界面上显示以散点为中心开启探索过程
+   -->
+   <!-- 需要向后端发送一些请求，然后绘制一个contour -->
+   <!-- 先不考虑绘制散点 -->
+    <div style="float: left">
+        <svg id="novelty_contour">
+        </svg>
+    </div>
+    <div style="float: left;height: 500px;" >
+        <ul id="explored_images_list" style="width: 100px;height: 500px;">
+        </ul>
+    </div>
+
+</div>
+<!-- 
+  300*300
+ -->
+<div id="start_point_view" style="display: none;width: 450px;height: 250px;box-shadow: gray 5px 5px 10px;" >
+  <div id="samples" style="float: left;width: 450px;height:250px;background-color: white;">
+    <div id="input_selection"></div>
+    <svg id="sample_svg">
+    </svg>
+  </div>
+
+</div>
+  <script>
+    // var new_data;
+    // var n,m;
+    // var mainGroup=d3.select("#mainsvg");
+    // mainGroup.append("g").attr("id","contour");
+    // mainGroup.append("g").attr("id","line");
+    // 这里处理选择模型的事件
+    // add_icon();
+    // 设置一些hyperparameter
+
+    var row_number=9; 
+    var img_size;
+    // 图片大小是border_size的5/6
+    var border_size;
+    var border_distance;
+    // 两个border之间的距离是与border之间的比例是12
+    var padding=30; //给坐标轴留的空隙
+
+    var len_axis;
+    var total_size;
+    var axis_padding;
+    var transform_x;
+    var transform_y;
+    var axis_padding_x;
+    var transform_gy;
+    var left_scalex;
+    var left_scaley;
+    var left_axisx;
+    var left_axisy;
+    var left_gx;
+    var left_gy;
+    var init_domain=10;
+    
+    document.getElementById("left_svg").setAttribute("width",total_size);
+    document.getElementById("left_svg").setAttribute("height",total_size);
+    document.getElementById("right_svg").setAttribute("width",total_size);
+    document.getElementById("right_svg").setAttribute("height",total_size);
+    document.getElementById("left_div").style.width=total_size+"px";
+    document.getElementById("right_div").style.width=total_size+"px";
+    document.getElementById("left_div").style.height=total_size+"px";
+    document.getElementById("right_div").style.height=total_size+"px";
+    // document.getElementById("left_div").setAttribute("height",total_size+"px");
+    // document.getElementById("right_div").setAttribute("height",total_size+"px");
+
+    document.getElementById("info_pannel").style.height=total_size;
+    
+    var overview_svg=d3.select("#novelty_contour");
+    overview_svg
+        .on("mousedown",overview_mousedown)
+        .on("mouseup",overview_mouseup)
+        .on("contextmenu",overview_right_click)
+    
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("sliderValue");
+    output.innerHTML = slider.value+" * "+slider.value;
+    
+    slider.oninput = function() {
+      output.innerHTML = this.value+" * "+this.value;
+      // 执行一个请求修改函数
+      // update row number
+      row_number=this.value;
+      border_distance=580/(13*row_number-1);
+      border_size=12*border_distance;
+      img_size=5*border_size/6;
+      update_row_number();
+      
+    }
+    function update_row_number(){
+      // 更新row_number
+      // 在服务器的后端也储存一个row number
+      $.post("/update_row_number",
+    { row_number:row_number},function(data,status){
+      // TO DO:
+      // 
+      var svg=d3.select("#left_svg");
+      show(svg,data.left_svd_images,data.domain_range);
+      var svg=d3.select("#right_svg");
+      if(data.right_svd_images.length!=0){
+        show(svg,data.right_svd_images,data.domain_range);
+      }
+
+      if(current_event!='zoom'){
+        activate_image_click();
+      }
+
+    })
+
+
+    }
+
+    function update_axis(){
+      left_scalex = d3.scaleLinear().domain([domain_x_start,domain_x_end]).range([0,len_axis-img_size]);
+      left_scaley = d3.scaleLinear().domain([domain_y_start,domain_y_end]).range([0, len_axis-img_size]);
+      left_axisx = d3.axisBottom(left_scalex).ticks(10);
+      left_axisy=d3.axisLeft(left_scaley).ticks(10);
+      left_gx=d3.select("#left_gx");
+      left_gy = d3.select("#left_gy");
+
+      left_gx
+      .attr("transform", `translate(${axis_padding_x+10},${transform_x-4})`)
+      .call(left_axisx);
+      left_gy
+      .attr("transform", `translate(${axis_padding+4},${transform_gy-10})`)
+      .call(left_axisy);
+      d3.select("#interpret_images").selectAll("path").remove();
+      d3.select("#pure_image").selectAll("image").remove();
+      d3.select("#pure_image").selectAll("g").remove();
+      document.getElementById("center_image").innerHTML="";
+      d3.selectAll("#feature_vector_view g").remove();
+      d3.selectAll("#left_outer_border rect").remove();
+      d3.selectAll("#left_inner rect").remove();
+      d3.selectAll("#right_outer_border rect").remove();
+      d3.selectAll("#right_inner rect").remove();
+      d3.selectAll("#mainsvg .click_logo").remove();
+      d3.selectAll("#mainsvg #center_logo").remove();
+
+      d3.selectAll("#svd_images .click_logo").remove();
+      d3.selectAll("#svd_images #center_logo").remove();
+
+    }
+
+    $("#model_select").on("change",function(){
+      selectModel();
+    })
+    // 给下拉选框添加一个事件
+    $("#measure_select").on("change",function(){
+       update_image_size();
+    });
+var model_index;
+var domain_x_start;
+var domain_x_end;
+var domain_y_start;
+var domain_y_end;
+function mark_left_div(){
+  // d3.select("#left_border")
+  //   .attr("stroke-width","5px");
+  //   d3.select("#right_border")
+  //   .attr("stroke-width","0px");
+
+    d3.select("#left_border")
+    .attr("fill","#DDDDDD");
+    d3.select("#right_border")
+    .attr("fill","white");
+    d3.select("#left_values")
+    .selectAll("text")
+    .attr("fill","black");
+
+}
+    function selectModel(){
+      var models=document.getElementById("model_select").options;
+      model_index=document.getElementById("model_select").selectedIndex;
+      update_measure(models[model_index].innerHTML);
+      clear_env();
+      $.post("/select_model",{
+        model_name:models[model_index].innerHTML,
+        row_number:row_number,
+      },function(data,status){
+        // gx和gy回归原位
+        
+        // update_axis();
+        var svg=d3.select("#left_svg");
+        show(svg,data.svd_images,data.domain_range);
+        // draw_bar(data.feature_values);
+        darw_accmulate_bar(data.accumulating_contribute_rate,0);
+        // show_accmulate_value(data.accumulating_contribute_rate);
+
+        show_neighbor_images(data.neighbor_images);
+        if(current_event!='zoom'){
+        activate_image_click();
+        }
+        mark_left_div();
+
+        update_image_list_ul(data.image_list);
+        request_samples();
+      })
+    }
+    // update_axis();
+
+    // var svg=d3.select("#svd_images");
+    // let zoom=d3.zoom()
+    // // .scaleExtent([0.1,20])
+    // .on("zoom",zoomHandler)
+    // .on("end",zoomEndHandler);
+    // svg.call(zoom);
+    // 绘制坐标轴
+    function draw_overview(){
+        $.post("/novelty_overview",
+    { overview_row_number:overview_row_number},function(data,status){
+      draw_contour(data);
+    }
+  )
+    }
+    function zoomHandler(e){
+      // var svg=d3.select("#svd_images");
+      // svg.attr("transform",e.transform);
+      left_gx.call(left_axisx.scale(e.transform.rescaleX(left_scalex)));
+      left_gy.call(left_axisy.scale(e.transform.rescaleY(left_scaley)));
+    }
+    function zoomEndHandler(e){
+      domainX=e.transform.rescaleX(left_scalex).domain();
+      domainY=e.transform.rescaleY(left_scaley).domain();
+
+      // 向服务器端发送一个请求，然后重新绘制图片
+      // 首先，如果目前没有选择
+      var model_index=document.getElementById("model_select").selectedIndex;
+      if(model_index==0)
+        return;
+      // 开始发送请求
+      $.post("/api/svd_images",
+      {domain_x:domainX.toString(),
+       domain_y:domainY.toString(),
+       row_number:row_number
+      },
+      function(data,status){
+        show(data.svd_images);
+      })
+      console.log(domainX);
+      console.log(domainY);
+      // 重新请求数据
+      // 重新绘制页面
+    }
+  </script>
+  <!-- <script src="/static/js/tree.js"></script> -->
+  <script src="/static/js/right.js"></script>
+  <script src="/static/js/legend.js"></script>
+</body>
+</html>
+
+
+
+<!-- 下面是弃用的代码 -->
+      <!-- <div id="selectBar">
+        <select class="form-select form-select-lg mb-10" aria-label=".form-select-lg example">
+          <option selected>Select Model</option>
+          <option value="1" >SN_MNIST</option>
+          <option value="2" >SN_Anime</option>
+          <option value="3" >BigGAN_ImageNet</option>
+          <option value="4" >ProgGAN_CelebA_HQ</option>
+          <option value="5" >stylegan2_ffhq</option>
+          <option value="6" >stylegan2-ada_cifar10</option>
+        </select>
+      </div> -->
+
+          <!-- <div style="float:left;height: 40px;width: 630px;background-color: white;margin-left: 3px;">
+      <div style="height: 25px;float: left;padding-top: 7.5px;padding-left:45px;">
+        <button style="height: 25px;" onclick="right_next_step()">next step</button>
+      </div>
+      <ion-icon name="add-circle-outline" style="float: left;padding-top: 6.0px;padding-left: 3px;" ></ion-icon>
+      <ion-icon name="remove-circle-outline" style="float: left;padding-top: 6.0px;" ></ion-icon>
+      <ion-icon name="expand-outline" style="transform: rotate(45deg) scale(0.8);float: left;padding-top: 6.0px;"></ion-icon>
+    </div> -->

@@ -1,0 +1,16 @@
+
+.node {
+    fill: rgb(63, 147, 216);
+    stroke: none;
+  }
+.link {
+    fill: none;
+    stroke: rgb(6, 6, 6);
+    stroke-width: 1px;
+}
+a{
+  fill: rgb(247, 26, 26);
+  fill: rgb(59, 59, 248);
+}
+
+  

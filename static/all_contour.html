@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Data Visualization using D3!</title>
+  <script src="/static/js/d3.min.js"></script>
+</head>
+<!-- 路漫漫其修远兮，吾将上下而求索 -->
+<!-- 前后端: to do list
+    step1: 请求数据
+    step2: 展示图片 3月22日
+    step3: 把所有方向的鲁棒性地图展示出来 
+    论文方面：读
+    https://research.tableau.com/sites/default/files/Wilkinson_Infovis-05.pdf
+    这篇讲的是  introduction
+    details:  http://www.myweb.ttu.edu/tnhondan/file/ScagExplorer.pdf [27]
+
+    next step to do:
+    figure out the measures 
+    maybe my approach can use these measures
+
+
+-->
+<body>
+  <svg  id="mainsvg" class="svgs" width="12000" height="12000"></svg>
+  <script>
+    var new_data;
+    var n,m;
+    for(let i=0;i<10;++i){
+        for(let j=0;j<10;++j){
+            d3.json("/api/robust_value?modelname=mnist&direction1="+i+"&direction2="+j)
+            .then(function(data){
+            draw(data.robust_values,i,j);
+            })
+        }
+    }
+
+
+    
+    function show(images){
+      var mainGroup=d3.select("#mainsvg");
+      var row_number=Math.floor(Math.sqrt(images.length))
+      mainGroup
+      .selectAll("image")
+      .data(images)
+      .join("image")
+      .attr("xlink:href",d=>"data:image/png;base64,"+d)
+      .attr("width",32)
+      .attr("height",32)
+      .attr("y",(d,i)=>(Math.floor(i/row_number)*36))
+      .attr("x",((d,i)=>n*10+((i%row_number)*36)))
+    }
+
+    function draw(robust_value,num_i,num_j){
+    n=robust_value.length;
+    m=robust_value.length;
+    const grid = new Array(n * m);
+    for(let i=0;i<m;++i){
+        for(let j=0;j<n;++j){
+            grid[i*n+j]=robust_value[i][j];
+        }
+    }
+    grid.n = n;
+    grid.m = m;
+    var maxValue=Math.max.apply(null,grid);
+    var minValue=Math.min.apply(null,grid);
+    thresholds = Array.from([0,0.01,0.03,0.05,0.07,0.09])
+
+    //Compute the contour polygons at log-spaced
+    //intervals; returns an array of MultiPolygon.
+
+    var contours = d3.contours()
+      .size([n, m])
+      .thresholds(thresholds)
+      (grid);
+
+    var path = d3.geoPath();
+
+    //color = d3.scaleSequential([-1, 1], d3.interpolateSpectral)
+    var color = ["#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"];
+    var mainGroup = d3.select("#mainsvg");
+    console.log(num_i);
+    console.log(num_j);
+    var str="scale(2) translate("+String(num_i*42)+","+String(num_j*42)+")";
+    console.log(str);
+    mainGroup
+      .append("g")
+      .selectAll("path")
+      .data(contours)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr('fill', (d,i)=>color[i])
+      .attr("transform",str)
+    }
+  </script>
+</body>
+
+</html>

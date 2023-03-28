@@ -1,0 +1,239 @@
+@font-face {font-family: "Amasis MT Bold";
+    src: url("02d8e0c992bd8a5b55315ca9773c684b.eot"); /* IE9*/
+    src: url("02d8e0c992bd8a5b55315ca9773c684b.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("02d8e0c992bd8a5b55315ca9773c684b.woff2") format("woff2"), /* chrome、firefox */
+    url("02d8e0c992bd8a5b55315ca9773c684b.woff") format("woff"), /* chrome、firefox */
+    url("02d8e0c992bd8a5b55315ca9773c684b.ttf") format("truetype"), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    url("02d8e0c992bd8a5b55315ca9773c684b.svg#Amasis MT Bold") format("svg"); /* iOS 4.1- */
+  }
+.svgs{
+    display: inline-block;
+}
+#tree{
+    float: left;
+}
+#bg{
+    height: 100%;
+    width: 100%;
+    background-color: rgb(96, 91, 91);
+    top: 0px;
+    position:absolute;
+    bottom: 0;
+}
+/* #selectBar{
+    position: relative;
+    left: 10px;
+    top: 10px;
+    margin-top: 4px;
+    margin-left: 10px;
+} */
+#graphs{
+    position: relative;
+    height: 100%;
+    margin-top: 2px;
+    /* margin-left: 10px; */
+}
+#navbar{
+    background-color: #CDCDCD;
+    height: 30px;
+}
+#navigator_bar{
+    background-color: #CDCDCD;
+    height: 40px;
+}
+
+.svgs{
+    background-color: white;
+    /* margin-left: 31px; */
+}
+
+
+/* #contour_div{
+    background-color: white;
+}
+#tree_div{
+    background-color: white;
+} */
+#parent{
+    width: 100%;
+    height: 673px;
+    margin: 0% 0%; 
+    position: relative;
+    background-color:rgb(176, 169, 169) ;
+}
+/* #CDCDCD */
+
+#info_pannel{
+    float: left;
+    height: 630px;
+    width: 180px;
+    margin-left: 1.5px;
+}
+#right_div{
+    margin-left: 1px;
+    float: left;
+    /* height: 100%; */
+    /* border:1px solid rgb(176, 169, 169); */
+}
+ /* border:1px solid rgb(176, 169, 169); */
+#left_div{
+
+    float: left;
+    /* height: auto; */
+    /* margin-right: 1px; */
+    /* border:1px solid rgb(176, 169, 169); */
+}
+
+/* 修改按钮的大小和颜色 */
+ion-icon {
+    font-size: 29px;
+    /*  */
+    color: #b3b1b1;
+}
+div{
+    box-sizing: border-box;
+}
+
+ion-icon:hover{
+    color: #777676;
+}
+image:hover{
+    opacity: 1;
+}
+img{
+    border: 10px solid rgb(255, 116, 116);
+}
+  
+ion-icon:hover{
+    color: #222222;
+}
+#legend{
+    margin-left: 1px;
+    height: 630px;
+    width: 46px;
+    background-color: white;
+    float: left;
+    margin-right: 1px;
+}
+
+.icon:hover path{
+    fill: #a9a4a4;
+    cursor: pointer;
+}
+.layui-layer-shade{
+    opacity: 0;
+}
+/* .icon:hover{
+    background-color: #efe5e5;
+} */
+
+.icon path{
+    fill:#575555 ;
+}
+
+.icon{
+    margin-right: 5px;
+}
+
+#novelty_contour{
+    width: 500px;
+    height: 500px;
+}
+#sample_svg{
+    width: 450px;
+    height: 300px;
+}
+.layui-layer-title{
+    display: inline-block;
+    height: 25px;
+    line-height: 25px;
+    width: 100%;
+}
+.layui-layer-setwin{
+    display:inline-block;
+    transform:translate(10px,-10px);
+}
+.title{
+    font-weight:bold;
+    font-size:18px;
+    font-family:serif;
+}
+ul{overflow:hidden; overflow-y:scroll;list-style-type:none;padding-left: 10px;}
+
+#test{
+    background-color: #dfdcdc;
+}
+rect::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    border-width: 40px;
+    z-index: 30;
+    /*border-color: rgba(206, 3, 5, .7) transparent transparent rgba(206, 3, 5, .7);*/
+
+    border-style: solid;
+    border-color: rgba(206, 3, 5, .7) transparent transparent rgba(206, 3, 5, .7);
+}
+#tool_name{
+    font-family:"Amasis MT Bold";
+    color: rgb(239, 172, 86);
+    font-size: 20px;
+}
+/* image:hover{
+    height: 60px;
+    width: 60px;
+
+} */
+
+  
+  /* The slider itself */
+  .slider {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 5px; /* Specified height */
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    border-radius: 5px;
+  }
+  
+  /* Mouse-over effects */
+  .slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+  }
+  
+  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 10px; /* Set a specific slider handle width */
+    height: 10px; /* Slider handle height */
+    background: #474a49; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+    border-radius: 50%; 
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 10px; /* Set a specific slider handle width */
+    height: 10px; /* Slider handle height */
+    background: #474a49; /* Green background */
+    cursor: pointer; /* Cursor on hover */
+    border-radius: 50%; 
+  }
+.label1{
+    font-family:"Times New Roman", Times, serif;
+    color:black;
+    font-size: 16px;
+}
+  /* #start_point_view{
+    box-shadow: black 0px 0px 7px;
+  } */
+  /* .layui-layer-content{
+    box-shadow: black 0px 3px 7px;
+
+  } */

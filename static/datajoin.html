@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Visualization using D3!</title>
+    <script src="/static/js/d3.min.js"></script>
+  </head>
+  <body>
+    <svg width="960" height="500" id="mainsvg" class="svgs">
+        <g class="chart" transform="translate(50, 0)"></g>
+    </svg>
+    <button>Update</button>
+    <script>
+        let myData=[40,10,20,60,32];
+
+        d3.select(".chart")
+        .selectAll("circle")
+        .data(myData)
+        .join('circle')
+        .attr('cx',function(d,i){
+            return i*100;
+            console.log(d);
+        })
+        .attr('cy', 50)
+        .attr('r', function(d) {
+    return 0.5 * d;
+  })
+        .style('fill', 'orange');
+
+
+        function update(cities){
+        d3.select(".chart")
+        .selectAll("rect")
+        .data(cities)
+        .join("rect")
+        .attr("x",function(d,i){
+            return 100*i;
+        })
+        .attr('y',200)
+        .attr("width",function(d){
+            return 0.00001*d.population;
+        })
+        .attr("height",70)
+        .attr("fill","#aaa");
+        }
+        function getData(){
+          let cities=[
+            {name: 'London', population: 8674000},
+            {name: 'New York', population: 8406000},
+            {name: 'Paris', population: 4293000},
+            {name: 'Sydney', population: 2244000},
+            {name: 'Beijing', population: 11510000}
+        ];
+        for(var i=0;i<cities.length;++i){
+          cities[i].population=Math.random()*10000000;
+        }
+        return cities;
+        }
+
+        function updateAll(){
+          let myCities=getData();
+          update(myCities);
+        }
+
+        updateAll();
+        d3.select("button")
+        .on("click",updateAll);
+
+
+
+
+    </script>
+  </body>
+</html>
